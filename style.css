@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+div.container{
+    width: 100%;
+    display: flex;
+    justify-content:center;
+    gap: 10px;
+    flex-direction:row;
+    flex-wrap: wrap;
+    
+}
+.button{
+    height: 35px;
+    border-radius: 15px;
+    box-shadow: 1px 1px 1px 1px grey;
+    background-color:burlywood;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+    padding: 5px;
+}
+div.container>div{
+    padding: 3px;
+    margin: 3px;
+    height: 30px;
+}
+.ranglista_table{
+    width: 100%;
+    margin: 0 auto;
+
+}
+.ranglista_table>table{
+    display: flex;
+    justify-content: center;
+}
+
