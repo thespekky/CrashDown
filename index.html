@@ -7,8 +7,10 @@
     <title>Crashdown játék</title>
 </head>
 <body>
+    <audio src="background.mp3" id="background" loop autoplay></audio>
+     <audio src="click.mp3" id="click" ></audio>
     <div class="container">
-        <div>
+        <div class="container_div">
         <input type="text" id="name"  placeholder="játékos neve" />
         </div>
         <div>
@@ -19,6 +21,18 @@
         </div>
         <div>
             <input type="button" id="reset" class="button" value="Vissza" />
+        </div>
+        <div>
+            <input type="button"id="settings" class="button" value="Beállítások">
+        </div>
+        <div class="container_div" id="sound">
+            <p>Háttér hangereje:</p>
+        </div>
+        <div class="container_div">
+            <input type="range" class="range" id="volume" min="0" max="100" value="0">
+        </div>
+        <div id="canvas_div">
+            <canvas id="canvas"></canvas>
         </div>
        <div class="ranglista_table">
         <table id="ranglista_table">
