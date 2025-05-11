@@ -35,8 +35,7 @@ div.container>div{
 
 }
 .ranglista_table>table{
-    display: flex;
-    justify-content: center;
+   margin: 0 auto;
 }
 canvas{
     border : 1px solid black;
