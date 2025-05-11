@@ -5,17 +5,22 @@ class cube{
     y;
     type;
     size;
-    constructor( x, y, type, size) {
+    time
+    constructor( x, y, type, size, time){ 
         this.x=x;
         this.y=y;
         this.type=type;
         this.size=size;
+        this.time=time;
     }
     static random(){
        return Szin[Math.floor(Math.random()*Szin.length)];
     }
+    static is_bonus_time(){
+        return Math.floor(Math.random()*bonus_time_value)==0;
+    }
 }
-
+var container=document.getElementById("container");
 var start_button=document.getElementById("start");
 var ranglista_button=document.getElementById("ranglista");
 var ranglista_table=document.getElementById("ranglista_table");
@@ -23,6 +28,10 @@ var reset_button=document.getElementById("reset");
 var settings_button=document.getElementById("settings");
 var player_name_input = document.getElementById("name");
 var music_slider=document.getElementById("volume");
+var click_div=document.getElementById("click_div");
+var click_slider=document.getElementById("click_slider");
+var time_slider=document.getElementById("time_slider");
+var time_div=document.getElementById("time_div");
 var sound=document.getElementById("sound");
 var background_music=document.getElementById("background");
 var timer=document.getElementById("time");
@@ -32,33 +41,41 @@ var canvas=document.getElementById("canvas");
 var ctx=canvas.getContext("2d");
 var player_name;
 
-music_slider.style.display="none";
+click_div.style.display="none";
 sound.style.display="none";
 reset_button.style.display="none";
 canvas.style.display="none";
 timer_div.style.display="none";
+time_div.style.display="none";
 
+var timecounter;
+var bonus_time_value=30;
 var pontok=0;
 var cubes=[];
 var cubesize=50;
 var time=60;
-cubes.push(new cube(0,0,cube.random(),cubesize));
 
 var row_count;
 var column_count;
 var can_click=true;
 
 
- background_music.volume=music_slider.value/100;
+background_music.volume=music_slider.value/100;
+click_music.volume=click_slider.value/100;
 function playmusic(){
 background_music.play();
 }
-
+time_slider.addEventListener("input",function(){
+    bonus_time_value=100-time_slider.value;
+    console.log(bonus_time_value);
+})
 document.addEventListener("click",function(){
     playmusic();
     click_music.play();
 });
-
+click_slider.addEventListener("input",function(){
+    click_music.volume=click_slider.value/100;
+})
 function gamelost(string){
     alert(string);
    reset_function();
@@ -74,7 +91,8 @@ function gamelost(string){
     }
    var new_player={
        name:player_name,
-       score:pontok
+       score:pontok,
+       time:time
    }
    ranglista.push(new_player);
    sessionStorage.setItem("ranglista",JSON.stringify(ranglista));
@@ -95,7 +113,7 @@ async function fillrows(rows){
     var xpos=0;
     var ypos=canvas.height-cubesize;
     for(let i=0;i<row_count;i++){
-        var new_cube=new cube(xpos,ypos,cube.random(),cubesize);
+        var new_cube=new cube(xpos,ypos,cube.random(),cubesize,cube.is_bonus_time());
         xpos+=cubesize;
         cubes.push(new_cube);
     }
@@ -191,26 +209,36 @@ async function fall_cubes(){
     setTimeout(fall_cubes,50);
 }
 function reset_function(){
+    clearInterval(timecounter);
     start_button.style.display="block";
     reset_button.style.display="none";
     player_name_input.style.display="block";
     ranglista_table.innerHTML="";
     ranglista_button.style.display="block";
     canvas.style.display="none";
-    music_slider.style.display="none";
+    click_div.style.display="none";
     sound.style.display="none";
     settings_button.style.display="block";
     timer_div.style.display="none";
+    time_div.style.display="none";
     cubes=[];
+    container.classList.add("container");
+    container.classList.remove("settings");
 }
 
 function timer_start(){
-    time=10;
     timecounter = setInterval(() => {
         time-=1;
         if(time>=60)
         {
-            timer.innerHTML=`${Math.floor(time/60)}:${time%60}`;
+            if(time%60<10)
+            {
+                timer.innerHTML=`${Math.floor(time/60)}:0${ time%60}`;
+            }
+            else
+            {   
+                timer.innerHTML=`${Math.floor(time/60)}:${ time%60}`;
+            }
         }
         else if(time>=10)
         {
@@ -252,6 +280,10 @@ canvas.addEventListener("click",async function(event){
     cubes=cubes.filter(cube=>{ 
     if (neighbours.includes(cube))
     {
+        if(cube.time)
+        {
+            time+=10;
+        }
         pontok++;
         return false;
     }
@@ -284,7 +316,6 @@ start_button.addEventListener("click",async function(){
     canvas.style.display="block";
     settings_button.style.display="none";
     sound.style.display="none";
-    music_slider.style.display="none";
     timer_div.style.display="block";
     
     ctx.fillStyle="white";
@@ -299,11 +330,23 @@ ranglista_button.addEventListener("click",function(){
     reset_button.style.display="block";
     settings_button.style.display="none";
     sound.style.display="none";
-    music_slider.style.display="none";
     var ranglista=JSON.parse(sessionStorage.getItem("ranglista")); 
-    ranglista_table.innerHTML=`<thead> <tr><th>nevek</th><th>pontok</th></tr></thead> <tbody>`;
+    ranglista_table.innerHTML=`<thead> <tr><th>nevek</th><th>pontok</th> <th>idő</th> </tr></thead> <tbody>`;
     ranglista.forEach(player => {
-        ranglista_table.innerHTML+=`<tr><td>${player.name}</td><td>${player.score}</td></tr>`;
+        var string_time;
+        if (player.time>60)
+        {
+            string_time=`${Math.floor(player.time/60)}:${player.time%60}`;
+        }
+        else if(player.time>=10)
+        {
+            string_time='00:'+player.time; 
+        }
+        else
+        {
+            string_time='00:0'+player.time;
+        }
+        ranglista_table.innerHTML+=`<tr><td>${player.name}</td><td>${player.score}</td> <td>${string_time}</td></tr>`;
     });
     ranglista_table.innerHTML+=`</tbody>`;
 })
@@ -313,12 +356,15 @@ reset_button.addEventListener("click",function(){
 })
 settings_button.addEventListener("click",function(){
     sound.style.display="block";
-    music_slider.style.display="block";
     reset_button.style.display="block";
     ranglista_button.style.display="none";
     start_button.style.display="none";
     player_name_input.style.display="none";
     settings_button.style.display="none";
+    click_div.style.display="block";
+    time_div.style.display="block";
+    container.classList.remove("container");
+    container.classList.add("settings");
 })
 
 
@@ -341,6 +387,15 @@ function draw()
         ctx.fillStyle=cube.type;
         ctx.fillRect(cube.x,cube.y,cube.size,cube.size);
         ctx.strokeRect(cube.x,cube.y,cube.size,cube.size);
+        if(cube.time)
+        {
+            ctx.beginPath();
+            ctx.strokeStyle="yellow";
+             ctx.fillStyle="yellow";
+            ctx.arc(cube.x+cube.size/2,cube.y+cube.size/2,cube.size/4,45,180);
+            ctx.stroke();
+            ctx.fill();
+        }
     });
     ctx.restore();
 }

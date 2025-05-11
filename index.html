@@ -9,7 +9,7 @@
 <body>
     <audio src="background.mp3" id="background" loop autoplay></audio>
      <audio src="click.mp3" id="click" ></audio>
-    <div class="container">
+    <div id="container" class="container">
         <div class="container_div">
         <input type="text" id="name"  placeholder="játékos neve" />
         </div>
@@ -23,16 +23,19 @@
             <input type="button" id="reset" class="button" value="Vissza" />
         </div>
         <div>
-            <input type="button"id="settings" class="button" value="Beállítások">
+            <input type="button" id="settings" class="button" value="Beállítások">
         </div>
         <div class ="container_div" id="timer" >
             <h2 >idő: <span id="time">01:00</span></h2>
         </div>
         <div class="container_div" id="sound">
-            <p>Háttér hangereje:</p>
+            <p>Háttér hangereje: <input type="range" class="range" id="volume" min="0" max="100" value="0"></p>
         </div>
-        <div class="container_div">
-            <input type="range" class="range" id="volume" min="0" max="100" value="0">
+        <div class="container_div" id="click_div">
+            <p>Kattintás hangereje: <input type="range" class="range" id="click_slider" min="0" max="100" value="10"></p>
+        </div>
+         <div class="container_div" id="time_div">
+            <p>bónusz idő kocka előfordulásának aránya: <input type="range" class="range" id="time_slider" min="15" max="85" value="30"></p>
         </div>
         <div id="canvas_div">
             <canvas id="canvas"></canvas>
