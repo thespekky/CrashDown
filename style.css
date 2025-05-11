@@ -36,7 +36,14 @@ div.container>div{
 }
 .ranglista_table>table{
    margin: 0 auto;
+   width: 100%;
+   float: left;
+   text-align: center;
 }
+.ranglista_table>table td{
+    padding-top: 5px;
+}
+
 canvas{
     border : 1px solid black;
 }

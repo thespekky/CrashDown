@@ -25,6 +25,8 @@ var player_name_input = document.getElementById("name");
 var music_slider=document.getElementById("volume");
 var sound=document.getElementById("sound");
 var background_music=document.getElementById("background");
+var timer=document.getElementById("time");
+var timer_div=document.getElementById("timer");
 var click_music=document.getElementById("click");
 var canvas=document.getElementById("canvas");
 var ctx=canvas.getContext("2d");
@@ -34,10 +36,12 @@ music_slider.style.display="none";
 sound.style.display="none";
 reset_button.style.display="none";
 canvas.style.display="none";
+timer_div.style.display="none";
 
 var pontok=0;
 var cubes=[];
 var cubesize=50;
+var time=60;
 cubes.push(new cube(0,0,cube.random(),cubesize));
 
 var row_count;
@@ -55,8 +59,8 @@ document.addEventListener("click",function(){
     click_music.play();
 });
 
-function gamelost(){
-    alert("A játéknak vége");
+function gamelost(string){
+    alert(string);
    reset_function();
    var ranglista=[];
    ranglista=JSON.parse(sessionStorage.getItem("ranglista"));
@@ -80,7 +84,7 @@ async function raise_cubes_height(){
     for(let i=0;i<cubes.length;i++){
         cubes[i].y-=cubesize;
         if(cubes[i].y<=0){
-           gamelost();
+           gamelost("a plafonra értek a nyégyzetek");
         }
     }
 
@@ -196,7 +200,33 @@ function reset_function(){
     music_slider.style.display="none";
     sound.style.display="none";
     settings_button.style.display="block";
+    timer_div.style.display="none";
     cubes=[];
+}
+
+function timer_start(){
+    time=10;
+    timecounter = setInterval(() => {
+        time-=1;
+        if(time>=60)
+        {
+            timer.innerHTML=`${Math.floor(time/60)}:${time%60}`;
+        }
+        else if(time>=10)
+        {
+            timer.innerHTML='00:'+time; 
+        }
+        else
+        {
+            timer.innerHTML='00:0'+time;
+        }
+
+        if(time<=0)
+        {
+            gamelost("lejárt az idő");
+            clearInterval(timecounter);
+        }
+    }, 1000);
 }
 canvas.addEventListener("click",async function(event){
     if(!can_click)return;
@@ -255,13 +285,12 @@ start_button.addEventListener("click",async function(){
     settings_button.style.display="none";
     sound.style.display="none";
     music_slider.style.display="none";
-
-    
+    timer_div.style.display="block";
     
     ctx.fillStyle="white";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     animate();
-
+    timer_start();
 })
 ranglista_button.addEventListener("click",function(){
     player_name_input.style.display="none";
@@ -286,6 +315,10 @@ settings_button.addEventListener("click",function(){
     sound.style.display="block";
     music_slider.style.display="block";
     reset_button.style.display="block";
+    ranglista_button.style.display="none";
+    start_button.style.display="none";
+    player_name_input.style.display="none";
+    settings_button.style.display="none";
 })
 
 
