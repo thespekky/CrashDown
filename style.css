@@ -70,4 +70,8 @@ canvas{
     background: #04AA6D;
     cursor: pointer;
 }
+h1{
+    text-align: center;
+    padding: 10px;
+}
 

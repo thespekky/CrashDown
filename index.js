@@ -20,6 +20,9 @@ class cube{
         return Math.floor(Math.random()*bonus_time_value)==0;
     }
 }
+
+// elemek lekérése 
+
 var container=document.getElementById("container");
 var start_button=document.getElementById("start");
 var ranglista_button=document.getElementById("ranglista");
@@ -41,13 +44,6 @@ var canvas=document.getElementById("canvas");
 var ctx=canvas.getContext("2d");
 var player_name;
 
-click_div.style.display="none";
-sound.style.display="none";
-reset_button.style.display="none";
-canvas.style.display="none";
-timer_div.style.display="none";
-time_div.style.display="none";
-
 var timecounter;
 var bonus_time_value=30;
 var pontok=0;
@@ -60,43 +56,67 @@ var column_count;
 var can_click=true;
 
 
+// indításkor az ranglista és beállítások elemeinek eltüntesése
+
+click_div.style.display="none";
+sound.style.display="none";
+reset_button.style.display="none";
+canvas.style.display="none";
+timer_div.style.display="none";
+time_div.style.display="none";
+
+
 background_music.volume=music_slider.value/100;
 click_music.volume=click_slider.value/100;
+
+//hangerő beállításaihoz tartotó kódrészlet
+
 function playmusic(){
 background_music.play();
 }
+
 time_slider.addEventListener("input",function(){
     bonus_time_value=100-time_slider.value;
-    console.log(bonus_time_value);
-})
+});
+
 document.addEventListener("click",function(){
     playmusic();
     click_music.play();
 });
+
 click_slider.addEventListener("input",function(){
     click_music.volume=click_slider.value/100;
-})
+});
+
+music_slider.addEventListener("input",function(){
+    background_music.volume=music_slider.value/100;
+});
+
+//függvények
+
 function gamelost(string){
     alert(string);
-   reset_function();
-   var ranglista=[];
-   ranglista=JSON.parse(sessionStorage.getItem("ranglista"));
+    reset_function();
+    var ranglista=[];
+    ranglista=JSON.parse(sessionStorage.getItem("ranglista"));
     if(ranglista==null)
     {
         ranglista=[];
     }
-   if(player_name===undefined||player_name=="")
+    if(player_name===undefined||player_name=="")
     {
         player_name="Anonymus";
     }
-   var new_player={
+    var new_player=
+    {
        name:player_name,
        score:pontok,
        time:time
-   }
-   ranglista.push(new_player);
-   sessionStorage.setItem("ranglista",JSON.stringify(ranglista));
-}
+    }
+    ranglista.push(new_player);
+    sessionStorage.setItem("ranglista",JSON.stringify(ranglista));
+};
+
 async function raise_cubes_height(){
     if(cubes.length==0)return;
     for(let i=0;i<cubes.length;i++){
@@ -106,10 +126,11 @@ async function raise_cubes_height(){
         }
     }
 
-}
+};
+
 async function fillrows(rows){
     if(rows==0)return;
-   await raise_cubes_height();
+    await raise_cubes_height();
     var xpos=0;
     var ypos=canvas.height-cubesize;
     for(let i=0;i<row_count;i++){
@@ -118,10 +139,7 @@ async function fillrows(rows){
         cubes.push(new_cube);
     }
     fillrows(rows-1);
-    /*for(let i=0;i<rows;i++){
-        cubes.push(new cube(Math.floor(Math.random()*(canvas.width-cubesize)),Math.floor(Math.random()*(canvas.height-cubesize)),cube.random(),cubesize));
-    }*/
-}
+};
 
 function find_neighbours(clicked_cube,neighbours){
     var found=false;
@@ -160,7 +178,8 @@ function find_neighbours(clicked_cube,neighbours){
             find_neighbours(cube,neighbours);
         });
     }
-}
+};
+
 function find_cube(c)
 {
     var found=false;
@@ -172,7 +191,7 @@ function find_cube(c)
         found=true;
    }
     return found;
-}
+};
 
 function get_floating_cubes()
 {
@@ -207,7 +226,8 @@ async function fall_cubes(){
         cube.y+=cubesize;
     });
     setTimeout(fall_cubes,50);
-}
+};
+
 function reset_function(){
     clearInterval(timecounter);
     start_button.style.display="block";
@@ -224,11 +244,10 @@ function reset_function(){
     cubes=[];
     container.classList.add("container");
     container.classList.remove("settings");
-}
+};
 
 function timer_start(){
     timecounter = setInterval(() => {
-        time-=1;
         if(time>=60)
         {
             if(time%60<10)
@@ -254,8 +273,40 @@ function timer_start(){
             gamelost("lejárt az idő");
             clearInterval(timecounter);
         }
+    time-=1;
     }, 1000);
-}
+};
+function animate()
+{
+    draw()
+    requestAnimationFrame(animate);
+};
+
+function draw()
+{
+    ctx.save();
+    ctx.fillStyle="white";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    cubes.forEach(cube => {
+        ctx.strokeStyle="black";
+        ctx.fillStyle=cube.type;
+        ctx.fillRect(cube.x,cube.y,cube.size,cube.size);
+        ctx.strokeRect(cube.x,cube.y,cube.size,cube.size);
+        if(cube.time)
+        {
+            ctx.beginPath();
+            ctx.strokeStyle="yellow";
+             ctx.fillStyle="yellow";
+            ctx.arc(cube.x+cube.size/2,cube.y+cube.size/2,cube.size/4,45,180);
+            ctx.stroke();
+            ctx.fill();
+        }
+    });
+    ctx.restore();
+};
+
+// eventlistenerek
+
 canvas.addEventListener("click",async function(event){
     if(!can_click)return;
     can_click=false;
@@ -277,6 +328,8 @@ canvas.addEventListener("click",async function(event){
         can_click=true;
         return;
     }
+    var pluszpontok=0;
+    var szorzo=1+neighbours.length/10;
     cubes=cubes.filter(cube=>{ 
     if (neighbours.includes(cube))
     {
@@ -284,7 +337,7 @@ canvas.addEventListener("click",async function(event){
         {
             time+=10;
         }
-        pontok++;
+       pluszpontok+=1*szorzo;
         return false;
     }
     else
@@ -292,13 +345,12 @@ canvas.addEventListener("click",async function(event){
         return true;
     }
     });
+    pontok+=Math.floor(pluszpontok);
     await fall_cubes();
 
 })
 
-music_slider.addEventListener("input",function(){
-    background_music.volume=music_slider.value/100;
-});
+
 
 start_button.addEventListener("click",async function(){
     cubes=[];
@@ -317,12 +369,14 @@ start_button.addEventListener("click",async function(){
     settings_button.style.display="none";
     sound.style.display="none";
     timer_div.style.display="block";
-    
+    time=60;
+    pontok=0;
     ctx.fillStyle="white";
     ctx.fillRect(0,0,canvas.width,canvas.height);
     animate();
     timer_start();
-})
+});
+
 ranglista_button.addEventListener("click",function(){
     player_name_input.style.display="none";
     ranglista_button.style.display="none";
@@ -330,8 +384,9 @@ ranglista_button.addEventListener("click",function(){
     reset_button.style.display="block";
     settings_button.style.display="none";
     sound.style.display="none";
-    var ranglista=JSON.parse(sessionStorage.getItem("ranglista")); 
-    ranglista_table.innerHTML=`<thead> <tr><th>nevek</th><th>pontok</th> <th>idő</th> </tr></thead> <tbody>`;
+    var ranglista=JSON.parse(sessionStorage.getItem("ranglista"));
+    ranglista.sort( (a, b) => b.score - a.score);
+    ranglista_table.innerHTML=`<thead> <tr><th>nevek</th><th>pontok</th> <th>maradék idő</th> </tr></thead> <tbody>`;
     ranglista.forEach(player => {
         var string_time;
         if (player.time>60)
@@ -349,11 +404,12 @@ ranglista_button.addEventListener("click",function(){
         ranglista_table.innerHTML+=`<tr><td>${player.name}</td><td>${player.score}</td> <td>${string_time}</td></tr>`;
     });
     ranglista_table.innerHTML+=`</tbody>`;
-})
+});
+
 reset_button.addEventListener("click",function(){
     reset_function();
 
-})
+});
 settings_button.addEventListener("click",function(){
     sound.style.display="block";
     reset_button.style.display="block";
@@ -366,36 +422,3 @@ settings_button.addEventListener("click",function(){
     container.classList.remove("container");
     container.classList.add("settings");
 })
-
-
-function animate()
-{
-    draw()
-    requestAnimationFrame(animate);
-}
-function draw()
-{
-    ctx.save();
-    ctx.fillStyle="white";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    cubes.forEach(cube => {
-       /*if(cube.y>0)
-        {
-            cube.y-=0.1;
-        }*/
-        ctx.strokeStyle="black";
-        ctx.fillStyle=cube.type;
-        ctx.fillRect(cube.x,cube.y,cube.size,cube.size);
-        ctx.strokeRect(cube.x,cube.y,cube.size,cube.size);
-        if(cube.time)
-        {
-            ctx.beginPath();
-            ctx.strokeStyle="yellow";
-             ctx.fillStyle="yellow";
-            ctx.arc(cube.x+cube.size/2,cube.y+cube.size/2,cube.size/4,45,180);
-            ctx.stroke();
-            ctx.fill();
-        }
-    });
-    ctx.restore();
-}
